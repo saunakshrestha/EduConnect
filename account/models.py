@@ -107,7 +107,7 @@ def generate_custom_uuid(instance):
 
 class Profile(models.Model):
     user = models.OneToOneField(Users, on_delete=models.SET_NULL, related_name="user_profile", null=True, blank=True)
-    unique_id = models.UUIDField(default=generate_custom_uuid, editable=False, unique=True)
+    unique_id = models.UUIDField(default=uuid.uuid4(), editable=False, unique=True)
 
     profile_pic = models.FileField(upload_to=profile_location, verbose_name="Profile Picture")
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -134,6 +134,16 @@ class Profile(models.Model):
         if self.profile_pic:
             return self.profile_pic.name
         return f"{settings.STATIC_URL}/assets_new/images/user.png"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.unique_id:
+            self.unique_id = generate_custom_uuid(self)
+        attempts = 0
+        while self.__class__.objects.filter(unique_id=self.unique_id).exists() and attempts <= 5:
+            self.unique_id = generate_custom_uuid(self)
+            attempts += 1
+            super().save(update_fields=['unque_id'])
 
     def __str__(self):
         return f"Profile of {self.user.name}"
