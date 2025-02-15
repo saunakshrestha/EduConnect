@@ -10,11 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -23,10 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tekl-(*l)0w3co_f==zbx@@!rr+shhc*7qn^7nm#lsgzz$^kbv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'account.apps.AccountConfig',
+    'student.apps.StudentConfig'
 ]
 
 MIDDLEWARE = [
@@ -69,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'educonnect.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -79,7 +81,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -99,7 +100,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -111,7 +111,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -121,3 +120,82 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# new additions
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)  # Create logs directory if not exists
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {  # Detailed format
+            "format": "[{asctime}] {levelname} {module} ({lineno}): {message}",
+            "style": "{",
+        },
+        "simple": {  # Simple format
+            "format": "{levelname}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        # ✅ Timed Rotating Log (Daily Rotation)
+        "file_timed": {
+            "level": "INFO",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(LOG_DIR, "timed.log"),
+            "when": "H",  # Rotate daily
+            "interval": 1,
+            "backupCount": 7,  # Keep last 7 days
+            "formatter": "verbose",
+        },
+        # ✅ Rotating Log (Size-Based Rotation)
+        "file_rotating": {
+            "level": "WARNING",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_DIR, "rotating.log"),
+            "maxBytes": 5 * 1024 * 1024,  # 5MB file size
+            "backupCount": 3,  # Keep 3 backup files
+            "formatter": "verbose",
+        },
+        # ✅ Separate File for Errors
+        "file_errors": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_DIR, "errors.log"),
+            "formatter": "verbose",
+        },
+        # ✅ Console Logging
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file_timed"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.request": {  # Logs every HTTP request
+            "handlers": ["file_rotating"],
+            "level": "WARNING",
+            "propagate": True,
+        },
+        "django.security": {  # Logs security issues
+            "handlers": ["file_errors"],
+            "level": "ERROR",
+            "propagate": True,
+        },
+        "educonnect_logger": {  # Custom Logger for Application
+            "handlers": ["console", "file_timed", "file_rotating", "file_errors"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
