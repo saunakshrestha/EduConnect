@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
-    'student.apps.StudentConfig'
+    'student.apps.StudentConfig',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +58,7 @@ ROOT_URLCONF = 'educonnect.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -115,6 +116,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -123,53 +125,55 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # new additions
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOGIN_URL = '/account/login/'
+LOGIN_REDIRECT_URL = '/'  # Redirect after login
+LOGOUT_REDIRECT_URL = '/account/login/'  # Redirect after logout
 
-LOG_DIR = os.path.join(BASE_DIR, "logs")
+BASE_DIR_LOGS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Define the log directory and create it if it doesn't exist
+LOG_DIR = os.path.join(BASE_DIR_LOGS, "logs")
 if not os.path.exists(LOG_DIR):
-    os.makedirs(LOG_DIR)  # Create logs directory if not exists
+    os.makedirs(LOG_DIR)
 
+# Logging configuration
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {  # Detailed format
+        "verbose": {
             "format": "[{asctime}] {levelname} {module} ({lineno}): {message}",
             "style": "{",
         },
-        "simple": {  # Simple format
+        "simple": {
             "format": "{levelname}: {message}",
             "style": "{",
         },
     },
     "handlers": {
-        # ✅ Timed Rotating Log (Daily Rotation)
         "file_timed": {
             "level": "INFO",
             "class": "logging.handlers.TimedRotatingFileHandler",
             "filename": os.path.join(LOG_DIR, "timed.log"),
-            "when": "H",  # Rotate daily
+            "when": "H",
             "interval": 1,
-            "backupCount": 7,  # Keep last 7 days
+            "backupCount": 7,
             "formatter": "verbose",
         },
-        # ✅ Rotating Log (Size-Based Rotation)
         "file_rotating": {
             "level": "WARNING",
             "class": "logging.handlers.RotatingFileHandler",
             "filename": os.path.join(LOG_DIR, "rotating.log"),
-            "maxBytes": 5 * 1024 * 1024,  # 5MB file size
-            "backupCount": 3,  # Keep 3 backup files
+            "maxBytes": 5 * 1024 * 1024,
+            "backupCount": 3,
             "formatter": "verbose",
         },
-        # ✅ Separate File for Errors
         "file_errors": {
             "level": "ERROR",
             "class": "logging.FileHandler",
             "filename": os.path.join(LOG_DIR, "errors.log"),
             "formatter": "verbose",
         },
-        # ✅ Console Logging
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
@@ -182,17 +186,17 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        "django.request": {  # Logs every HTTP request
+        "django.request": {
             "handlers": ["file_rotating"],
             "level": "WARNING",
             "propagate": True,
         },
-        "django.security": {  # Logs security issues
+        "django.security": {
             "handlers": ["file_errors"],
             "level": "ERROR",
             "propagate": True,
         },
-        "educonnect_logger": {  # Custom Logger for Application
+        "educonnect_logger": {
             "handlers": ["console", "file_timed", "file_rotating", "file_errors"],
             "level": "DEBUG",
             "propagate": True,

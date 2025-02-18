@@ -1,8 +1,6 @@
-import hashlib
 import logging
 import random
 import string
-import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
@@ -98,16 +96,8 @@ def profile_location(instance, filename):
     return f"profile/pictures/{instance.user.username}/{filename}"
 
 
-def generate_custom_uuid(instance):
-    # Combine user data to create a unique string
-    unique_string = f"{instance.user.username}{instance.user.email}{instance.user.created}{timezone.now()}"
-    # Create a UUID based on the hash of the unique string
-    return uuid.UUID(hashlib.md5(unique_string.encode()).hexdigest())
-
-
 class Profile(models.Model):
     user = models.OneToOneField(Users, on_delete=models.SET_NULL, related_name="user_profile", null=True, blank=True)
-    unique_id = models.UUIDField(default=uuid.uuid4(), editable=False, unique=True)
 
     profile_pic = models.FileField(upload_to=profile_location, verbose_name="Profile Picture")
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -135,27 +125,5 @@ class Profile(models.Model):
             return self.profile_pic.name
         return f"{settings.STATIC_URL}/assets_new/images/user.png"
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.unique_id:
-            self.unique_id = generate_custom_uuid(self)
-        attempts = 0
-        while self.__class__.objects.filter(unique_id=self.unique_id).exists() and attempts <= 5:
-            self.unique_id = generate_custom_uuid(self)
-            attempts += 1
-            super().save(update_fields=['unque_id'])
-
     def __str__(self):
         return f"Profile of {self.user.name}"
-
-
-class Student(models.Model):
-    user = models.OneToOneField(Users, on_delete=models.SET_NULL, related_name="student_detail", null=True, blank=True)
-    profile = models.OneToOneField(Profile, on_delete=models.SET_NULL, related_name="student_detail",
-                                   null=True, blank=True)
-    is_admitted = models.BooleanField(default=False)
-    admission_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=20, default='active')
-
-    def __str__(self):
-        return f"Student: {self.user.name} {self.user.name}"

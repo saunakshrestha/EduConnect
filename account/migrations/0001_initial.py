@@ -19,7 +19,6 @@ class Migration(migrations.Migration):
             name='Profile',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('unique_id', models.UUIDField(default=account.models.generate_custom_uuid, editable=False, unique=True)),
                 ('profile_pic', models.FileField(upload_to=account.models.profile_location, verbose_name='Profile Picture')),
                 ('phone', models.CharField(blank=True, max_length=20, null=True)),
                 ('address', models.TextField(blank=True, null=True)),

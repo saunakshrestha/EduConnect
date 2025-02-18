@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | EduConnect</title>
+
+    {% load static %}
+    <!-- Load Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center" style="height:100vh;">
+
+    <div class="container">
+        <div class="login-container">
+            <h3 class="text-center mb-4">Login</h3>
+
+            <!-- Display Django messages (for login errors, etc.) -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} text-center">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger text-center">
+                    {{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                    <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter your username or email" required>
+                    {% if form.username.errors %}
+                        <p class="form-error">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_password" class="form-label">Password</label>
+                    <input type="password" name="password" id="id_password" class="form-control" placeholder="Enter your password" required>
+                     {% if form.password.errors %}
+                        <p class="form-error">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+
+            <div class="text-center mt-3">
+<!--                <p>Don't have an account? <a href="">Sign up</a></p>-->
+<!--                <p><a href="">Forgot password?</a></p>-->
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Bootstrap JavaScript -->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Bootstrap Form Validation Script -->
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+    </script>
+
+</body>
+</html>
