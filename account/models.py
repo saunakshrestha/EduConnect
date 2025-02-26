@@ -60,10 +60,6 @@ class CustomAccountManager(BaseUserManager):
         return super().get_queryset()
 
 
-def location(instance, filename):
-    return f'profile/{instance.username}/{filename}'
-
-
 class Users(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='Email', unique=True)
     username = models.CharField(verbose_name='Username', max_length=255)

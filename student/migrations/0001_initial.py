@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('document_type', models.CharField(choices=[('passport', 'Passport'), ('student_citizenship', 'Student Citizenship'), ('parent_citizenship', 'Parent Citizenship'), ('plus_two_character', '+2 Character'), ('plus_two_transcript', '+2 Transcript'), ('tenth_character', '10th Character'), ('ward_recommendation', 'Ward Recommendation'), ('jlct', 'JLCT Certificate')], max_length=50)),
-                ('file', models.FileField(upload_to=student.models.document_file_path)),
+                ('file', models.FileField(upload_to="student/documents/%Y/%m/%d")),
                 ('expiry_date', models.DateField(blank=True, null=True)),
                 ('score', models.CharField(blank=True, max_length=20, null=True)),
                 ('verification_status', models.CharField(choices=[('pending', 'Pending'), ('verified', 'Verified'), ('rejected', 'Rejected')], default='pending', max_length=20)),

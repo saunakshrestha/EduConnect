@@ -2,10 +2,10 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.shortcuts import render, redirect
 from django.views import View
-from student.forms import StudentForm
+from admin_dashboard.forms import StudentForm
 
-from student.filters import StudentFilter
-from student.models import Student
+from admin_dashboard.filters import StudentFilter
+from admin_dashboard.models import Student
 import logging
 
 logger = logging.getLogger('educonnect_logger')

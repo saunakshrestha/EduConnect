@@ -144,8 +144,8 @@ class Address(models.Model):
     ward_no = models.PositiveIntegerField()
     tole = models.CharField(max_length=100, blank=True, null=True)  # Optional
     postal_code = models.CharField(max_length=10, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True, default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     def __str__(self):
         return f"{self.local_unit_name}, {self.district}, {self.province} ({self.address_type})"
@@ -153,7 +153,6 @@ class Address(models.Model):
 
 def profile_location(instance, filename):
     return f"profile/pictures/{instance.user.username}/{filename}"
-
 
 
 class Student(models.Model):
@@ -206,8 +205,8 @@ class Student(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -232,12 +231,12 @@ class Document(models.Model):
     DOCUMENT_TYPES = [
         ('passport', 'Passport'),
         ('student_citizenship', 'Student Citizenship'),
-        ('parent_citizenship', 'Parent Citizenship'),##
+        ('parent_citizenship', 'Parent Citizenship'),  ##
         ('plus_two_character', '+2 Character'),
         ('plus_two_transcript', '+2 Transcript'),
         ('tenth_character', '10th Character'),
-        ('ward_recommendation', 'Ward Recommendation'),##
-        ('jlct', 'JLCT Certificate'),##
+        ('ward_recommendation', 'Ward Recommendation'),  ##
+        ('jlct', 'JLCT Certificate'),  ##
     ]
 
     VERIFICATION_STATUS = [

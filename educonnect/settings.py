@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
     'student.apps.StudentConfig',
+    'admin_dashboard.apps.AdminDashboardConfig',
     'django_filters',
 ]
 
