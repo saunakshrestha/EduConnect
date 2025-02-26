@@ -67,7 +67,10 @@ def location(instance, filename):
 class Users(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='Email', unique=True)
     username = models.CharField(verbose_name='Username', max_length=255)
-    name = models.CharField(verbose_name='Name', max_length=255, blank=True)
+    first_name = models.CharField(verbose_name='First Name', max_length=255, blank=True)
+    middle_name = models.CharField(verbose_name='Middle Name', max_length=255, blank=True)
+    last_name = models.CharField(verbose_name='Last Name', max_length=255, blank=True)
+    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='Phone Number', unique=True)
     is_staff = models.BooleanField(verbose_name='Staff', default=False)
     date_joined = models.DateField(verbose_name='date joined', auto_now_add=True, auto_now=False)
     created = models.DateTimeField(default=timezone.now)
@@ -84,7 +87,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
     objects = CustomAccountManager()
 
     def get_fullname(self):
-        return f'{self.name}'
+        if self.middle_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 
     class Meta:
         db_table = 'users'
@@ -92,38 +97,3 @@ class Users(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Users'
 
 
-def profile_location(instance, filename):
-    return f"profile/pictures/{instance.user.username}/{filename}"
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(Users, on_delete=models.SET_NULL, related_name="user_profile", null=True, blank=True)
-
-    profile_pic = models.FileField(upload_to=profile_location, verbose_name="Profile Picture")
-    phone = models.CharField(max_length=20, blank=True, null=True)
-    address = models.TextField(blank=True, null=True)
-    birthdate = models.DateField(null=True, blank=True)
-    gender = models.CharField(max_length=10, choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
-                              blank=True)
-    marital_status = models.CharField(max_length=20, blank=True, null=True)
-    country = models.CharField(max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=100, blank=True, null=True)
-    profession = models.CharField(max_length=100, blank=True, null=True)
-    blood_group = models.CharField(max_length=5, blank=True, null=True)
-    nationality = models.CharField(max_length=100, blank=True, null=True)
-    religion = models.CharField(max_length=100, blank=True, null=True)
-    hobbies = models.TextField(blank=True, null=True)
-    emergency_contact = models.CharField(max_length=100, blank=True, null=True)
-    social_media_links = models.JSONField(blank=True, null=True)  # e.g., {"twitter": "username"}
-    education_level = models.CharField(max_length=100, blank=True, null=True)
-    last_login_ip = models.GenericIPAddressField(blank=True, null=True)
-    notifications_enabled = models.BooleanField(default=True)
-    updated = models.DateTimeField(default=timezone.now)
-
-    def profile_pic_url(self):
-        if self.profile_pic:
-            return self.profile_pic.name
-        return f"{settings.STATIC_URL}/assets_new/images/user.png"
-
-    def __str__(self):
-        return f"Profile of {self.user.name}"
