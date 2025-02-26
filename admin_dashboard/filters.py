@@ -3,6 +3,7 @@ import django_filters
 from django import forms
 from admin_dashboard.models import Student
 
+
 class StudentFilter(django_filters.FilterSet):
     unique_id = django_filters.UUIDFilter(
         widget=forms.TextInput(attrs={
@@ -28,11 +29,7 @@ class StudentFilter(django_filters.FilterSet):
             'placeholder': 'Enter Phone'
         })
     )
-    is_admitted = django_filters.BooleanFilter(
-        widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input',
-        })
-    )
+
     admission_date = django_filters.DateFromToRangeFilter(
         widget=django_filters.widgets.RangeWidget(attrs={
             'class': 'form-control',
@@ -64,6 +61,33 @@ class StudentFilter(django_filters.FilterSet):
             'type': 'date',
         })
     )
+    intake_month = django_filters.CharFilter(
+        widget=forms.Select(
+            choices=[('january', 'January'), ('febuary', 'Febuary'), ('march', 'March'), ('april', 'April'),
+                     ('may', 'May'), ('june', 'June'), ('july', 'July'), ('august', 'August'),
+                     ('december', 'December')],
+            attrs={
+                'class': 'form-select'
+            })
+    )
+    intake_year = django_filters.CharFilter(
+        widget=forms.Select(
+            choices=
+            [('2020', '2020'), ('2021', '2021'), ('2022', '2022'), ('2023', '2023'),
+             ('2024', '2024'), ('2025', '2025'), ('2026', '2026'), ('2027', '2027'),
+             ('2028', '2028'), ('2029', '2029'), ('2030', '2030')],
+            attrs={
+                'class': 'form-select'
+            })
+    )
+
+    education_level = django_filters.CharFilter(
+        widget=forms.Select(
+            choices=[('+2', '+2'), ('bachelor', 'Bachelor'), ('master', 'Master'), ('phd', 'PhD')],
+            attrs={
+                'class': 'form-select'
+            })
+    )
 
     class Meta:
         model = Student
@@ -72,10 +96,12 @@ class StudentFilter(django_filters.FilterSet):
             'user__username',
             'user__email',
             'profile__phone',
-            'is_admitted',
             'admission_date',
             'graduation_date',
             'status',
             'created_at',
             'updated_at',
+            'intake_month',
+            'intake_year',
+            'education_level',
         ]

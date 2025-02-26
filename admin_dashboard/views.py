@@ -18,18 +18,19 @@ class HomeView(View):
         try:
             student_filter = StudentFilter(request.GET, queryset=Student.objects.all())
             logger.info(f"User {request.user.username} accessed the student home page.")
-            return render(request, 'student/home.html', {'filter': student_filter})
+            return render(request, 'admin_dashboard/home.html', {'filter': student_filter})
         except Exception as e:
             logger.error(f"Error: {e}")
             return redirect('home')
+
 class AddStudentView(View):
     def get(self, request, *args, **kwargs):
         form = StudentForm()
-        return render(request, 'student/entry_students/entry_student.html', {'form': form})
+        return render(request, 'admin_dashboard/entry_students/entry_student.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
         form = StudentForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('home')
-        return render(request, 'student/entry_students/entry_student.html', {'form': form})
+        return render(request, 'admin_dashboard/entry_students/entry_student.html', {'form': form})
