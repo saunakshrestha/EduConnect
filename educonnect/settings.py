@@ -125,6 +125,10 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # new additions
+MEDIA_URL = '/media/'
+
+# Directory where media files will be stored
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URL = '/'  # Redirect after login

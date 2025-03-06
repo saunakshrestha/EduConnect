@@ -140,15 +140,15 @@ class Address(models.Model):
     province = models.CharField(max_length=50, choices=PROVINCE_CHOICES)
     district = models.CharField(max_length=50, choices=DISTRICT_CHOICES)
     local_unit_type = models.CharField(max_length=20, choices=LOCAL_UNIT_TYPE_CHOICES)
-    local_unit_name = models.CharField(max_length=50)  # Name of Metropolitan, Municipality, etc.
-    ward_no = models.PositiveIntegerField()
+    local_unit_name = models.CharField(max_length=50, blank=True, null=True)
+    ward_no = models.PositiveIntegerField(default=0)
     tole = models.CharField(max_length=100, blank=True, null=True)  # Optional
     postal_code = models.CharField(max_length=10, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
     def __str__(self):
-        return f"{self.local_unit_name}, {self.district}, {self.province} ({self.address_type})"
+        return f"{self.local_unit_name}, {self.district}, {self.province}"
 
 
 def profile_location(instance, filename):
@@ -169,12 +169,12 @@ class Student(models.Model):
     ]
 
     # Identification
-    unique_id = models.UUIDField(default=uuid.uuid4(), editable=False, unique=True)
+    unique_id = models.CharField(max_length=250, unique=True, blank=True, null=True)
 
     # Relations
     user = models.OneToOneField(Users, on_delete=models.SET_NULL,
                                 related_name="student_detail", null=True, blank=True)
-    profile_pic = models.FileField(upload_to=profile_location, verbose_name="Profile Picture")
+    profile_pic = models.FileField(upload_to=profile_location, verbose_name="Profile Picture", default='profile/default.jpg')
     permanent_address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name="permanent_address",
                                           null=True, blank=True)
     temporary_address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name="temporary_address",
@@ -212,7 +212,7 @@ class Student(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Student: {self.unique_id} - {self.user.name if self.user else 'No Name'}"
+        return f"Student: {self.unique_id} - {self.user.username}"
 
     def get_document(self, document_type):
         """Get latest version of a specific document"""
@@ -223,7 +223,8 @@ class Student(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.unique_id:
-            self.unique_id = generate_custom_uuid(self)
+            uniqueness_id = str(datetime.timestamp(timezone.now())).replace('.', '')
+            self.unique_id = f"{uniqueness_id}"
         super().save(*args, **kwargs)
 
 

@@ -13,6 +13,58 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+
+                    <!-- UsersForm -->
+                    <h6 class="mb-3">User Information</h6>
+                    {% for field in users_form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <!-- Permanent Address -->
+                    <h6 class="mb-3">Permanent Address</h6>
+                    <div class="row">
+                        {% for p_address in perm_addresses %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ p_address.id_for_label }}" class="form-label">{{ p_address.label }}</label>
+                                {{ p_address }}
+                                {% if p_address.help_text %}
+                                    <div class="form-text">{{ p_address.help_text }}</div>
+                                {% endif %}
+                                {% for error in p_address.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Temporary Address -->
+                    <h6 class="mb-3">Temporary Address</h6>
+                    <div class="row">
+                        {% for t_address in temp_addresses %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ t_address.id_for_label }}" class="form-label">{{ t_address.label }}</label>
+                                {{ t_address }}
+                                {% if t_address.help_text %}
+                                    <div class="form-text">{{ t_address.help_text }}</div>
+                                {% endif %}
+                                {% for error in t_address.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- StudentForm -->
+                    <h6 class="mb-3">Student Information</h6>
                     {% for field in form %}
                         <div class="mb-3">
                             <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
@@ -25,9 +77,37 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
+
                     <button type="submit" class="btn btn-primary">Save</button>
                 </form>
             </div>
         </div>
     </div>
+{% endblock %}
+{% block script %}
+<script>
+    function updateDistricts(provinceSelectId, districtSelectId) {
+        document.getElementById(provinceSelectId).addEventListener('change', function() {
+            let province = this.value;
+            let baseUrl = window.location.origin; // Get the base URL dynamically
+            let url = `${baseUrl}/dashboard/get_districts?province=${province}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    let districtSelect = document.getElementById(districtSelectId);
+                    districtSelect.innerHTML = '';
+                    data.forEach(function(district) {
+                        let option = document.createElement('option');
+                        option.value = district;
+                        option.text = district;
+                        districtSelect.add(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching districts:', error));
+        });
+    }
+
+    updateDistricts('id_perm-province', 'id_perm-district');
+    updateDistricts('id_temp-province', 'id_temp-district');
+</script>
 {% endblock %}
