@@ -31,6 +31,11 @@ class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = [
+            'first_name',
+            'middle_name',
+            'last_name',
+            'phone',
+            'email',
             'profile_pic',
             'intake_month',
             'intake_year',
@@ -41,7 +46,13 @@ class StudentForm(forms.ModelForm):
             'notifications_enabled',
             'status',
         ]
+
         widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'middle_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'profile_pic': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'intake_month': forms.Select(attrs={'class': 'form-select'}),
             'intake_year': forms.Select(attrs={'class': 'form-select'}),

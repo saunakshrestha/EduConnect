@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -21,8 +22,11 @@ class HomeView(View):
         logger.info(request.GET)
         try:
             student_filter = StudentFilter(request.GET, queryset=Student.objects.all())
+            paginator = Paginator(student_filter.qs, 10)  # Show 10 students per page
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
             logger.info(f"User {request.user.username} accessed the student home page.")
-            return render(request, 'admin_dashboard/home.html', {'filter': student_filter})
+            return render(request, 'admin_dashboard/home.html', {'filter': student_filter, 'page_obj': page_obj})
         except Exception as e:
             logger.error(f"Error: {e}")
             return redirect('home')
@@ -31,7 +35,6 @@ class HomeView(View):
 class AddStudentView(View):
     def get(self, request, *args, **kwargs):
         form = StudentForm()
-        users_form = UsersForm()
         perm_addresses = AddressForm(prefix='perm')
         temp_addresses = AddressForm(prefix='temp')
 
@@ -39,19 +42,16 @@ class AddStudentView(View):
             'form': form,
             'perm_addresses': perm_addresses,
             'temp_addresses': temp_addresses,
-            'users_form': users_form
         }
         return render(request, 'admin_dashboard/entry_students/entry_student.html', context)
 
     def post(self, request, *args, **kwargs):
         logger.info(request.POST)
 
-        users_form = UsersForm(request.POST)
         perm_address_form = AddressForm(request.POST, prefix='perm')
         temp_address_form = AddressForm(request.POST, prefix='temp')
         student_form = StudentForm(request.POST)
-        if users_form.is_valid():
-            logger.info(f"User form is valid: {users_form.cleaned_data}")
+
         if perm_address_form.is_valid():
             logger.info(f"Perm Address form is valid: {perm_address_form.cleaned_data}")
         if temp_address_form.is_valid():
@@ -61,13 +61,10 @@ class AddStudentView(View):
         else:
             logger.info(f"Student form is invalid: {student_form.errors}")
 
-        if (users_form.is_valid() and perm_address_form.is_valid() and temp_address_form.is_valid()
+        if (perm_address_form.is_valid() and temp_address_form.is_valid()
                 and student_form.is_valid()):
             try:
                 with transaction.atomic():
-                    # Create User
-                    user = users_form.save()
-
                     # Create Permanent Address
                     perm_address = perm_address_form.save()
 
@@ -76,7 +73,6 @@ class AddStudentView(View):
 
                     # Create Student
                     student = student_form.save(commit=False)
-                    student.user = user
                     student.permanent_address = perm_address
                     student.temporary_address = temp_address
                     student.save()
@@ -86,12 +82,11 @@ class AddStudentView(View):
                 logger.error(f"Error saving student data: {e}")
 
         else:
-            logger.error(f"Form errors: {users_form.errors}, {perm_address_form.errors}, {temp_address_form.errors}, ")
+            logger.error(f"Form errors: {perm_address_form.errors}, {temp_address_form.errors}, ")
         context = {
             'form': student_form,
             'perm_addresses': perm_address_form,
             'temp_addresses': temp_address_form,
-            'users_form': users_form
         }
         return render(request, 'admin_dashboard/entry_students/entry_student.html', context)
 

@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/base.html' %}
+{% load form_filters %}
 
 {% block css %}
 <style>
@@ -40,19 +41,25 @@
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="id_unique_id" class="form-label">Student ID</label>
-                        {{ filter.form.unique_id }}
+                        {{ filter.form.unique_id|add_class:"form-control" }}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
-                        <label for="id_user__username" class="form-label">Username</label>
-                        {{ filter.form.user__username }}
+                        <label for="id_email" class="form-label">Email</label>
+                        {{ filter.form.email|add_class:"form-control" }}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
-                        <label for="id_user__email" class="form-label">Email</label>
-                        {{ filter.form.user__email }}
+                        <label for="id_first_name" class="form-label">First Name</label>
+                        {{ filter.form.first_name|add_class:"form-control" }}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="id_last_name" class="form-label">Last Name</label>
+                        {{ filter.form.last_name|add_class:"form-control" }}
                     </div>
                 </div>
 
@@ -60,19 +67,19 @@
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="id_education_level" class="form-label">Education Level</label>
-                        {{ filter.form.education_level }}
+                        {{ filter.form.education_level|add_class:"form-control" }}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="id_intake_month" class="form-label">Intake Month</label>
-                        {{ filter.form.intake_month }}
+                        {{ filter.form.intake_month|add_class:"form-control" }}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="id_intake_year" class="form-label">Intake Year</label>
-                        {{ filter.form.intake_year }}
+                        {{ filter.form.intake_year|add_class:"form-control" }}
                     </div>
                 </div>
 
@@ -80,13 +87,13 @@
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="id_status" class="form-label">Status</label>
-                        {{ filter.form.status }}
+                        {{ filter.form.status|add_class:"form-control" }}
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="id_notifications_enabled" class="form-label">Notifications</label>
-                        {{ filter.form.notifications_enabled }}
+                        {{ filter.form.notifications_enabled|add_class:"form-check-input" }}
                     </div>
                 </div>
 
@@ -97,13 +104,13 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label for="id_created_at" class="form-label">Created Date</label>
-                        {{ filter.form.created_at }}
+                        {{ filter.form.created_at|add_class:"form-control" }}
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label for="id_updated_at" class="form-label">Updated Date</label>
-                        {{ filter.form.updated_at }}
+                        {{ filter.form.updated_at|add_class:"form-control" }}
                     </div>
                 </div>
 
@@ -143,7 +150,7 @@
                             {% for student in filter.qs %}
                             <tr>
                                 <td>{{ student.unique_id }}</td>
-                                <td>{{ student.user.name|default:"N/A" }}</td>
+                                <td>{{ student.first_name }} {{ student.last_name }}</td>
                                 <td>{{ student.education_level|default:"N/A" }}</td>
                                 <td>{{ student.intake_month|title }} {{ student.intake_year }}</td>
                                 <td><span class="badge bg-{{ student.status }}">{{ student.status|title }}</span></td>

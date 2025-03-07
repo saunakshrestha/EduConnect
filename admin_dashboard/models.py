@@ -1,3 +1,5 @@
+from random import random, randint
+
 from django.db import models
 from account.models import Users
 from datetime import datetime
@@ -172,8 +174,12 @@ class Student(models.Model):
     unique_id = models.CharField(max_length=250, unique=True, blank=True, null=True)
 
     # Relations
-    user = models.OneToOneField(Users, on_delete=models.SET_NULL,
-                                related_name="student_detail", null=True, blank=True)
+    email = models.EmailField(verbose_name='Email', unique=True)
+    first_name = models.CharField(verbose_name='First Name', max_length=255, blank=True)
+    middle_name = models.CharField(verbose_name='Middle Name', max_length=255, blank=True)
+    last_name = models.CharField(verbose_name='Last Name', max_length=255, blank=True)
+    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='Phone Number', unique=True)
+
     profile_pic = models.FileField(upload_to=profile_location, verbose_name="Profile Picture", default='profile/default.jpg')
     permanent_address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name="permanent_address",
                                           null=True, blank=True)
@@ -212,7 +218,7 @@ class Student(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Student: {self.unique_id} - {self.user.username}"
+        return f"Student: {self.unique_id} - {self.first_name} {self.last_name}"
 
     def get_document(self, document_type):
         """Get latest version of a specific document"""
